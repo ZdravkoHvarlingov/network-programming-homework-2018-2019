@@ -10,25 +10,25 @@ public class FileUtils {
 		
 		File file = new File(url);
 		 
-        FileInputStream fis = new FileInputStream(file);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        for (int readNum; (readNum = fis.read(buf)) != -1;) {
-            bos.write(buf, 0, readNum); 
-        }
+		FileInputStream fis = new FileInputStream(file);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		byte[] buf = new byte[1024];
+		for (int readNum; (readNum = fis.read(buf)) != -1;) {
+		    bos.write(buf, 0, readNum); 
+		}
 
-        byte[] bytes = bos.toByteArray();
-        fis.close();
-        
-        return bytes;
+		byte[] bytes = bos.toByteArray();
+		fis.close();
+
+		return bytes;
 	}
 	
 	public static void ByteArrayToFile(String directory, byte[] bytes, String name) throws IOException {
 		
 		File dir = new File(directory);
-	    if (!dir.exists()){
-	        dir.mkdirs();
-	    }
+	    	if (!dir.exists()) {
+	            dir.mkdirs();
+	  	}
 		
 		File resultFile = new File(directory + File.separator + name);
 		FileOutputStream fos = new FileOutputStream(resultFile);
