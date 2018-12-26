@@ -1,3 +1,6 @@
+# Chat application details
+In the chat implementation every user is asked for a valid username. The default message is a text message. If you want to send other files, just type SND filePath, where filePath is the path to the file. You can send all type of files, but there is a size limit of 45KB. All chat participants will receive the sent file which will be downloaded in .\\Downloads\\\<username\>, where username is the chat username of the receiver. 
+
 # Chat Application using multicasting 
 You need to implement a multicast chat application in which each participant can send and 
 receive chat messages from all other participants. Before sending message the participant 
