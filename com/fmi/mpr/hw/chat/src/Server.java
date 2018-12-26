@@ -10,7 +10,7 @@ public class Server {
 	final static String MULTICAST_INET_ADDR = "224.0.0.3";
 	final static int MULTICAST_PORT = 6565;
 	final static int SERVER_PORT = 6566;
-	final static int MAX_LENGTH = 1024;
+	final static int MAX_LENGTH = 50000;
 	
 	static Set<String> connectedNames;
 	
@@ -18,28 +18,45 @@ public class Server {
 		connectedNames = new TreeSet<String>();
 		
 		try(DatagramSocket receiveSocket = new DatagramSocket(SERVER_PORT)) {		
-			byte[] buff = new byte[MAX_LENGTH];	
 			
+			System.out.println("Chat room server started!");
 			while(true) {
+				byte[] buff = new byte[MAX_LENGTH];	
 				DatagramPacket receivedPacket  = new DatagramPacket(buff, buff.length);
 				receiveSocket.receive(receivedPacket);
 				
+				Boolean hasChange = false;
+				Boolean shouldSend = true;
 				String msg = new String(receivedPacket.getData(), receivedPacket.getOffset(), receivedPacket.getLength());
+				String name = null;
+				
+				//New user registration
 				if(msg.startsWith("#")) {
-					ProcessNewName(msg.substring(1), receiveSocket, receivedPacket.getAddress(), receivedPacket.getPort());
-					msg = msg.substring(1) + " entered the chat...";
+					name = msg.substring(1);
+					shouldSend = !connectedNames.contains(name);
+					ProcessNewName(name, receiveSocket, receivedPacket.getAddress(), receivedPacket.getPort());
+					msg = name.concat(" entered the chat...");
+					hasChange = true;
 				}
+				//User is logging out
 				else if(msg.startsWith("?")) {
-					LogoutUser(msg.substring(1));
-					msg = msg.substring(1) + " left the chat...";
+					name = msg.substring(1);
+					LogoutUser(name);
+					msg = name.concat(" left the chat...");
+					hasChange = true;
 				}
-				else if(connectedNames.contains(msg.split(":")[0])) {
-					System.out.println(msg);
+				else {
+					name = msg.split(":")[0];
 				}
 				
-				InetAddress address = InetAddress.getByName(MULTICAST_INET_ADDR);
-				DatagramPacket multicastPacket = new DatagramPacket(msg.getBytes(), msg.getBytes().length, address, MULTICAST_PORT);
-				receiveSocket.send(multicastPacket);
+				if(shouldSend && (hasChange || connectedNames.contains(name))) {
+					
+					byte[] finalBytes = hasChange ? msg.getBytes() : receivedPacket.getData();
+					
+					InetAddress address = InetAddress.getByName(MULTICAST_INET_ADDR);
+					DatagramPacket multicastPacket = new DatagramPacket(finalBytes, finalBytes.length, address, MULTICAST_PORT);
+					receiveSocket.send(multicastPacket);
+				}
 			}
 		}
 		
